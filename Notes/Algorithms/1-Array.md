@@ -12,7 +12,7 @@ You must write an algorithm with `O(log n)` runtime complexity.
 
 **Example 1:**
 
-```
+```python
 Input: nums = [-1,0,3,5,9,12], target = 9
 Output: 4
 Explanation: 9 exists in nums and its index is 4
@@ -20,7 +20,7 @@ Explanation: 9 exists in nums and its index is 4
 
 **Example 2:**
 
-```
+```python
 Input: nums = [-1,0,3,5,9,12], target = 2
 Output: -1
 Explanation: 2 does not exist in nums so return -1
@@ -133,7 +133,7 @@ Consider the number of elements in `nums` which are not equal to `val` be `k`, t
 
 **Example 1:**
 
-```
+```python
 Input: nums = [3,2,2,3], val = 3
 Output: 2, nums = [2,2,_,_]
 Explanation: Your function should return k = 2, with the first two elements of nums being 2.
@@ -142,7 +142,7 @@ It does not matter what you leave beyond the returned k (hence they are undersco
 
 **Example 2:**
 
-```
+```python
 Input: nums = [0,1,2,2,3,0,4,2], val = 2
 Output: 5, nums = [0,1,4,0,3,_,_,_]
 Explanation: Your function should return k = 5, with the first five elements of nums containing 0, 0, 1, 3, and 4.
@@ -215,17 +215,82 @@ class Solution(object):
 
 ### 题目
 
+Given an integer array `nums` sorted in **non-decreasing** order, return *an array of **the squares of each number** sorted in non-decreasing order*.
 
+**Example 1:**
+
+```python
+Input: nums = [-4,-1,0,3,10]
+Output: [0,1,9,16,100]
+Explanation: After squaring, the array becomes [16,1,0,9,100].
+After sorting, it becomes [0,1,9,16,100].
+```
+
+**Example 2:**
+
+```python
+Input: nums = [-7,-3,2,3,11]
+Output: [4,9,9,49,121]
+```
 
 ### 思路
 
+> 将list中的每个元素平方之后重新排列
 
+- 使用双指针，一个指向第一个元素，一个指向最后一个元素。新建一个list，多一个指针指向list的最后一位元素
 
 ### 过程
 
-
+- 创建循环，将每个元素平方后做对比，如果前面的元素平方后大于后面的元素的平方，则将前面的元素的平方放到新建list的末尾。前面的指针向后移，新建list的指针向前移。反之亦然
+- 前后两个指针相遇时循环结束
 
 ### 代码
+
+```c++
+class Solution {
+public:
+    vector<int> sortedSquares(vector<int>& nums) {
+        int result_pointer = nums.size() - 1;
+        vector<int> result(nums.size(), 0);
+        for (int i=0, j=nums.size()-1; i<=j; result_pointer--){
+            if (nums[i]*nums[i] >= nums[j]*nums[j]) {
+                result[result_pointer] = nums[i] * nums[i++];
+            } else if (nums[i]*nums[i] < nums[j]*nums[j]) {
+                result[result_pointer] = nums[j] * nums[j--];
+            }
+        }
+        return result;
+    }
+};
+```
+
+```python
+class Solution(object):
+    def sortedSquares(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: List[int]
+        """
+
+        '''
+        Dual pointer:
+        '''
+        cur1 = 0
+        cur2 = len(nums) - 1
+        nums1 = [0] * len(nums)
+        cur3 = len(nums) - 1
+        while cur1 <= cur2:
+            if nums[cur1]**2 >= nums[cur2]**2:
+                nums1[cur3] = nums[cur1]**2
+                cur1 += 1
+            else:
+                nums1[cur3] = nums[cur2]**2
+                cur2 -= 1
+            cur3 -= 1
+        return nums1
+```
+
+
 
 ## 209. 长度最小的子数组
 
