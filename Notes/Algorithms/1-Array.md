@@ -100,17 +100,92 @@ public:
 
 ### 题目
 
+Given an integer array `nums` and an integer `val`, remove all occurrences of `val` in `nums` [**in-place**](https://en.wikipedia.org/wiki/In-place_algorithm). The order of the elements may be changed. Then return *the number of elements in* `nums` *which are not equal to* `val`.
 
+Consider the number of elements in `nums` which are not equal to `val` be `k`, to get accepted, you need to do the following things:
+
+- Change the array `nums` such that the first `k` elements of `nums` contain the elements which are not equal to `val`. The remaining elements of `nums` are not important as well as the size of `nums`.
+- Return `k`.
+
+**Example 1:**
+
+```
+Input: nums = [3,2,2,3], val = 3
+Output: 2, nums = [2,2,_,_]
+Explanation: Your function should return k = 2, with the first two elements of nums being 2.
+It does not matter what you leave beyond the returned k (hence they are underscores).
+```
+
+**Example 2:**
+
+```
+Input: nums = [0,1,2,2,3,0,4,2], val = 2
+Output: 5, nums = [0,1,4,0,3,_,_,_]
+Explanation: Your function should return k = 5, with the first five elements of nums containing 0, 0, 1, 3, and 4.
+Note that the five elements can be returned in any order.
+It does not matter what you leave beyond the returned k (hence they are underscores).
+```
 
 ### 思路
 
+> 给定一个list，移除其中所有等于val的元素。最后输出移除后list中的数字数量。
 
+- 由于list的内存地址是连续的（在C++中），所以我们不能直接删除list中的某一个元素，而是需要将后面的元素覆写上来。
+- 根据这个思路，我们需要两个指针，一个指向需要被覆写的元素，另一个指向准备覆写的元素
+- 这种方法叫做双指针。一般来说分为fast和slow两个指针，fast在每次循环中都指向下一个元素，而slow指针根据特殊的需求设定移动的节奏
+
+![27.移除元素-双指针法](https://camo.githubusercontent.com/8c49666f4d541dd22e7e221964cc0ac7997d4bc98272d54ea6569c51bc2640d6/68747470733a2f2f636f64652d7468696e6b696e672e63646e2e626365626f732e636f6d2f676966732f32372e2545372541372542422545392539392541342545352538352538332545372542342541302d2545352538462538432545362538432538372545392539322538382545362542332539352e676966)
 
 ### 过程
 
-
+1. 定义两个指针`slow`, `fast`。`fast`指针在每个循环中都向前进一个元素，而`slow`则根据特定的要求向前进
+2. 设定循环，遍历list中的每一个元素。停止条件为`fast`指针到达list的最后一个元素为止
+3. 在每个循环中，判断`fast`指针指向的元素值是否和val匹配。如果不匹配，说明这个值是可以覆写到`slow`指针中的，覆写到`slow`指针的元素。
+   - 由于`fast`指针肯定比`slow`指针快或相等。如果在相等的位置则覆写不会改变值。如果`fast`指针比`slow`指针快，则说明`slow`指针卡在了需要覆写的元素上，所以覆写是安全的。
+4. 循环结束后输出`slow`指针的数字（即数组内有多少有效的元素）
 
 ### 代码
+
+```c++
+class Solution {
+public:
+    int removeElement(vector<int>& nums, int val) {
+        int slow_pointer = 0;
+        for(int fast_pointer=0; fast_pointer < nums.size(); fast_pointer++) {
+            if (nums[fast_pointer] != val) {
+                nums[slow_pointer++] = nums[fast_pointer]; 
+            }
+        }
+        return slow_pointer;
+    }
+};
+```
+
+```python
+class Solution(object):
+    def removeElement(self, nums, val):
+        """
+        :type nums: List[int]
+        :type val: int
+        :rtype: int
+        """
+        
+        '''
+        Dual pointer:
+        Two pointer fast and slow, for each elements, if the element 
+        not equal to the target, the element of slow pointer is re-writted
+        by the fast pointer element. Then slow pointer move forward. 
+        Whatever the element is, fast pointer always move forward.
+        '''
+        fast = 0
+        slow = 0
+        while fast < len(nums):
+            if nums[fast] != val:
+                nums[slow] = nums[fast]
+                slow += 1
+            fast += 1
+        return slow
+```
 
 ## 977. 有序数组的平方
 
