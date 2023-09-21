@@ -296,17 +296,175 @@ class Solution(object):
 
 ### 题目
 
+Given an array of positive integers `nums` and a positive integer `target`, return *the **minimal length** of a* 
 
+*subarray*
+
+Whose sum is *greater than or equal to* `target`. If there is no such subarray, return `0` instead.
+
+**Example 1:**
+
+```
+Input: target = 7, nums = [2,3,1,2,4,3]
+Output: 2
+Explanation: The subarray [4,3] has the minimal length under the problem constraint.
+```
+
+**Example 2:**
+
+```
+Input: target = 4, nums = [1,4,4]
+Output: 1
+```
+
+**Example 3:**
+
+```
+Input: target = 11, nums = [1,1,1,1,1,1,1,1]
+Output: 0
+```
 
 ### 思路
 
+> Sliding window is a window that sliding form the start of the array to the end
 
+滑动窗口是**不断的调节子序列的起始位置和终止位置，从而得出我们要想的结果**。
+
+在暴力解法中，是一个for循环滑动窗口的起始位置，一个for循环为滑动窗口的终止位置，用两个for循环 完成了一个不断搜索区间的过程。
+
+那么滑动窗口如何用一个for循环来完成这个操作呢。
+
+首先要思考 如果用一个for循环，那么应该表示 滑动窗口的起始位置，还是终止位置。
+
+如果只用一个for循环来表示 滑动窗口的起始位置，那么如何遍历剩下的终止位置？
+
+此时难免再次陷入 暴力解法的怪圈。
+
+所以 只用一个for循环，那么这个循环的索引，一定是表示 滑动窗口的终止位置。
+
+那么问题来了， 滑动窗口的起始位置如何移动呢？
+
+这里还是以题目中的示例来举例，s=7， 数组是 2，3，1，2，4，3，来看一下查找的过程：
+
+![209.长度最小的子数组](https://camo.githubusercontent.com/dd84aee84237ebb78cf7ffde58803dc03350a4071d0981b8add65d9c59199ac4/68747470733a2f2f636f64652d7468696e6b696e672e63646e2e626365626f732e636f6d2f676966732f3230392e2545392539352542462545352542412541362545362539432538302545352542302538462545372539412538342545352541442539302545362539352542302545372542422538342e676966)
+
+最后找到 4，3 是最短距离。
+
+其实从动画中可以发现滑动窗口也可以理解为双指针法的一种！只不过这种解法更像是一个窗口的移动，所以叫做滑动窗口更适合一些。
+
+在本题中实现滑动窗口，主要确定如下三点：
+
+- 窗口内是什么？
+- 如何移动窗口的起始位置？
+- 如何移动窗口的结束位置？
+
+窗口就是 满足其和 ≥ s 的长度最小的 连续 子数组。
+
+窗口的起始位置如何移动：如果当前窗口的值大于s了，窗口就要向前移动了（也就是该缩小了）。
+
+窗口的结束位置如何移动：窗口的结束位置就是遍历数组的指针，也就是for循环里的索引。
+
+![leetcode_209](https://camo.githubusercontent.com/6728c7e466955f2c15c6d37077d3f00274065bfadd9b855e48ff6540335b8c18/68747470733a2f2f636f64652d7468696e6b696e672d313235333835353039332e66696c652e6d7971636c6f75642e636f6d2f706963732f32303231303331323136303434313934322e706e67)
 
 ### 过程
 
-
+- The initial window size is one, which the left pointer and right pointer are both zero
+- Before shifting, the variable `sum` is added by the right pointer's element value
+  - Since the initial element for right pointer is zero, so the variable `sum` contains the sliding window's elements sum
+- **While** the sum is greater or equal to the target value, calculate the minimum length `min_len`
+  - Which is one of the previous or the current window size
+  - Shift the sliding window, by shifting the **left pointer**
+  - Do not forget to subtract the left element value from sum
+- Then, the sliding window will default increase its size by shifting right pointer
+- Finally, return the `min_len`, if the value of `min_len` is infinite, then return 0
 
 ### 代码
+
+```c++
+class Solution {
+public:
+    int minSubArrayLen(int target, vector<int>& nums) {
+        /*
+        滑动窗口法：
+
+        该方法使用两个指针（与双指针法极其类似）确定起始位置和终止位置。
+        在brute-force中，我们同样使用了滑动窗口法。在初始状态，起始位置在0，通过第一个for loop不断后调终止位置，
+        再通过第二个for loop在起始位置到数组末尾后调整起始位置到下一个。这种方法使用了两个for loop，时间复杂度
+        为n^2。
+        
+        但是在滑动窗口法中，我们可以改变起始位置的变动策略。在初始状态，起始位置在0，通过第一个for loop不断后调
+        终止位置。但是一旦滑动窗口中的数字和大于等于目标值后，起始位置即+1。这样我们只需要一个for loop便能解决
+        问题。
+        */ 
+
+       int result = INT32_MAX;
+       int sublen = 0;
+       int j = 0; //起始位置
+       int sum = 0;
+
+       for (int i=0 /*终点位置*/; i<nums.size(); i++) 
+       {
+            sum += nums[i];
+            /*
+            使用while的原因：
+            考虑到即使滑动起始位置后，剩下的数组仍能满足条件，所以需要不断验证
+            */
+            while (sum >= target)
+            {
+                sublen = i - j + 1;
+                result = result < sublen ? result : sublen;
+                /*
+                滑动起始位置后，将sum中滑出起始位置的数值减掉，同时让起始位置j加一
+                */
+                sum -= nums[j++];
+            }
+       }
+       return result == INT32_MAX ? 0 : result;
+    }
+};
+```
+
+```python
+class Solution(object):
+    def minSubArrayLen(self, target, nums):
+        """
+        :type target: int
+        :type nums: List[int]
+        :rtype: int
+        """
+
+        # Sliding window:
+        '''
+        - Sliding window is a window that sliding form the start of the array to the end
+        - The initial window size is one, which the left pointer and right pointer are both zero
+        - Before shifting, the variable `sum` is added by the right pointer's element value
+            - Since the initial element for right pointer is zero, so the variable `sum` contains the sliding window's elements sum
+        - **While** the sum is greater or equal to the target value, calculate the minimum length `min_len`
+            - Which is one of the previous or the current window size
+            - Shift the sliding window, by shifting the **left pointer**
+            - Do not forget to subtract the left element value from sum
+        - Then, the sliding window will default increase its size by shifting right pointer
+        - Finally, return the `min_len`, if the value of `min_len` is infinite, then return 0
+        '''
+
+        l = len(nums)
+        left = 0
+        right = 0
+        min_len = float('inf')
+        sum = 0
+        
+        while right < l:
+            sum += nums[right]
+            while sum >= target:
+                min_len = min(min_len, right-left+1)
+                sum -= nums[left]
+                left += 1
+            
+            right += 1
+
+        return min_len if min_len != float('inf') else 0
+```
+
 ## 59. 螺旋矩阵
 
 ### 题目
